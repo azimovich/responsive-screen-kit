@@ -1,0 +1,617 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>responsive_screen_kit — qanday ishlaydi</title>
+<style>
+:root {
+  --bg: #f7f7f4; --surface: #ffffff; --surface-2: #f0efea; --ink: #1d1d1b; --muted: #6b6a64;
+  --line: #dddcd5; --accent: #2f6fde; --accent-soft: #e3ecfc; --ok: #1f8a5b; --ok-soft: #dff3ea;
+  --warn: #b7791f; --warn-soft: #fbf0dc; --no: #b4413a; --no-soft: #f8e3e1;
+  --c0: #2f6fde; --c1: #8b5cf6; --c2: #1f8a5b; --c3: #d9480f;
+  --code-bg: #1e1f24; --code-ink: #e8e6df;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141413; --surface: #1d1d1b; --surface-2: #262624; --ink: #ecebe6; --muted: #a09f98;
+    --line: #34332f; --accent: #6d9cf0; --accent-soft: #1f2b44; --ok: #4cc38a; --ok-soft: #17322a;
+    --warn: #e0a64a; --warn-soft: #3a2e18; --no: #e5776f; --no-soft: #3d1f1d;
+    --c0: #6d9cf0; --c1: #a78bfa; --c2: #4cc38a; --c3: #f08a4b; --code-bg: #0f0f10;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141413; --surface: #1d1d1b; --surface-2: #262624; --ink: #ecebe6; --muted: #a09f98;
+  --line: #34332f; --accent: #6d9cf0; --accent-soft: #1f2b44; --ok: #4cc38a; --ok-soft: #17322a;
+  --warn: #e0a64a; --warn-soft: #3a2e18; --no: #e5776f; --no-soft: #3d1f1d;
+  --c0: #6d9cf0; --c1: #a78bfa; --c2: #4cc38a; --c3: #f08a4b; --code-bg: #0f0f10;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif; }
+main { max-width: 980px; margin: 0 auto; padding: 40px 16px 80px; }
+h1 { font-size: 34px; line-height: 1.2; margin: 0 0 8px; letter-spacing: -0.02em; }
+h2 { font-size: 24px; margin: 56px 0 6px; letter-spacing: -0.01em; }
+h3 { font-size: 17px; margin: 24px 0 8px; }
+p { margin: 8px 0; }
+.lead { color: var(--muted); font-size: 18px; max-width: 720px; }
+.num { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--accent); color: #fff; font-size: 14px; font-weight: 700; margin-right: 8px; vertical-align: 3px; }
+code { font: 13.5px/1.5 ui-monospace, "SF Mono", Menlo, monospace; background: var(--surface-2);
+  padding: 1px 5px; border-radius: 4px; }
+pre { background: var(--code-bg); color: var(--code-ink); padding: 16px 18px; border-radius: 10px;
+  overflow-x: auto; margin: 12px 0; }
+pre code { background: none; padding: 0; color: inherit; }
+.k { color: #c792ea; } .s { color: #c3e88d; } .t { color: #82aaff; } .c { color: #7f8490; } .n { color: #f78c6c; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; margin: 16px 0; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
+.grid2 > *, .pg-info > * { min-width: 0; }
+.note { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 10px 14px; border-radius: 0 8px 8px 0; margin: 14px 0; }
+.toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; padding: 0; list-style: none; }
+.toc a { display: block; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px;
+  color: var(--ink); text-decoration: none; font-size: 14px; background: var(--surface); }
+.toc a:hover { border-color: var(--accent); color: var(--accent); }
+svg { display: block; width: 100%; height: auto; }
+svg text { font-family: inherit; fill: var(--ink); }
+.box { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
+.box-accent { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; }
+.arrow { stroke: var(--muted); stroke-width: 1.6; fill: none; marker-end: url(#arr); }
+.small { font-size: 12px; fill: var(--muted); }
+table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; }
+.pill { display: inline-block; padding: 1px 9px; border-radius: 999px; font-size: 13px; font-weight: 600; }
+.p-ok { background: var(--ok-soft); color: var(--ok); } .p-no { background: var(--no-soft); color: var(--no); }
+.p-warn { background: var(--warn-soft); color: var(--warn); }
+/* playground */
+.controls { display: grid; grid-template-columns: auto 1fr auto; gap: 8px 12px; align-items: center; margin-bottom: 14px; }
+.controls input[type=range] { width: 100%; accent-color: var(--accent); }
+.presets { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+button { font: inherit; font-size: 13px; padding: 5px 11px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--ink); cursor: pointer; }
+button:hover { border-color: var(--accent); }
+button.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+body { overflow-x: clip; }
+main + section, section + main { margin-top: 0; }
+.playground { background: var(--surface-2); border-block: 1px solid var(--line); padding: 40px 0 48px; margin: 40px 0; }
+.pg-inner { max-width: 1680px; margin: 0 auto; padding: 0 16px; }
+.pg-toolbar { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--surface-2) 92%, transparent);
+  backdrop-filter: blur(8px); border-block: 1px solid var(--line); padding: 12px 0 4px; margin: 16px 0 24px; }
+.pg-row { display: flex; flex-wrap: wrap; gap: 12px 28px; align-items: center; }
+.pg-row .controls { flex: 1 1 420px; margin-bottom: 10px; }
+.pg-mode { display: flex; gap: 6px; align-items: center; margin-bottom: 10px; }
+.pg-scale { font-size: 13px; color: var(--muted); margin-left: 6px; min-width: 150px; }
+.pg-canvas { display: flex; justify-content: center; align-items: flex-start; padding: 24px; border-radius: 14px;
+  background-color: var(--bg); background-image: radial-gradient(var(--line) 1px, transparent 1px); background-size: 20px 20px;
+  border: 1px solid var(--line); overflow: hidden; }
+.pg-info { display: grid; grid-template-columns: 1.3fr 1fr; gap: 24px; margin-top: 24px; }
+@media (max-width: 860px) { .pg-info { grid-template-columns: 1fr; } }
+.device { border: 10px solid #111; border-radius: 28px; overflow: hidden; position: relative; background: #111; flex: none;
+  box-sizing: content-box; box-shadow: 0 12px 40px rgba(0,0,0,.22); }
+/* the app inside: laid out at real logical pixels, then scaled down */
+.app { position: absolute; top: 0; left: 0; transform-origin: top left; background: #f4f5f7; color: #1d1d1b;
+  font: 16px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; }
+.app-bar { height: 56px; flex: none; display: flex; align-items: center; gap: 12px; padding: 0 16px; color: #fff; font-weight: 700; font-size: 20px; transition: background .25s; }
+.app-bar .chip { margin-left: auto; font-size: 14px; font-weight: 600; background: rgba(255,255,255,.22); padding: 4px 10px; border-radius: 999px; }
+.app-body { flex: 1; overflow: hidden; display: grid; align-content: start; transition: padding .25s, gap .25s; }
+.app-card { background: #fff; border-radius: 14px; box-shadow: 0 1px 3px rgba(0,0,0,.08); overflow: hidden; display: flex; flex-direction: column; }
+.app-body { grid-auto-rows: max-content; }
+.app-card .img { height: 96px; flex: none; }
+.app-card .txt { padding: 12px 14px 14px; }
+.app-card .t1 { font-weight: 700; font-size: 17px; }
+.app-card .t2 { color: #6b6a64; font-size: 14px; margin-top: 2px; }
+.app-card .bar { height: 8px; border-radius: 4px; background: #e8e8ec; margin-top: 10px; }
+.app-card .bar.short { width: 60%; }
+.picked { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 14px; margin-top: 10px; padding: 10px 12px; border: 1px dashed var(--line); border-radius: 8px; }
+.picked span:nth-child(odd) { color: var(--muted); }
+.rule { display: grid; grid-template-columns: 22px 1fr; gap: 8px; padding: 8px 10px; border: 1px solid var(--line);
+  border-radius: 8px; margin-bottom: 6px; font-size: 14px; background: var(--surface); }
+.rule .chk { font-weight: 700; }
+.rule.match { border-color: var(--ok); }
+.rule.win { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 0 1px var(--accent) inset; }
+.rule small { color: var(--muted); display: block; font-size: 12.5px; }
+.result { font-size: 15px; margin-top: 10px; }
+.steps { list-style: none; padding: 0; margin: 10px 0 0; counter-reset: s; }
+.steps li { counter-increment: s; padding: 8px 10px 8px 40px; position: relative; border: 1px solid var(--line);
+  border-radius: 8px; margin-bottom: 6px; font-size: 14px; background: var(--surface); }
+.steps li::before { content: counter(s); position: absolute; left: 10px; top: 8px; width: 20px; height: 20px;
+  border-radius: 50%; background: var(--surface-2); display: grid; place-items: center; font-size: 12px; font-weight: 700; }
+.steps li.hit { border-color: var(--ok); background: var(--ok-soft); }
+.steps li.skip { color: var(--muted); }
+.mapgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 8px 0; }
+.mapcell { border: 1px dashed var(--line); border-radius: 8px; padding: 8px; font-size: 13px; text-align: center; min-height: 56px; }
+.mapcell b { display: block; font-size: 12px; color: var(--muted); font-weight: 600; }
+.mapcell.has { border-style: solid; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--muted); margin-top: 8px; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: 0; }
+.events { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.tree { display: grid; gap: 6px; }
+.node { padding: 9px 12px; border-radius: 8px; border: 1px solid var(--line); font-size: 14px; background: var(--surface);
+  display: flex; justify-content: space-between; gap: 10px; transition: background .2s, border-color .2s; }
+.node.rb { background: var(--warn-soft); border-color: var(--warn); }
+.node .tag { font-size: 12px; color: var(--muted); }
+.node.rb .tag { color: var(--warn); font-weight: 700; }
+.indent1 { margin-left: 18px; } .indent2 { margin-left: 36px; }
+footer { margin-top: 64px; color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>responsive_screen_kit — qanday ishlaydi</h1>
+<p class="lead">Ekran turlarini siz belgilaysiz, qoidalarni siz yozasiz, dizaynni har tur uchun builder orqali chizasiz.
+Package oyna o'lchamini o'qiydi, turni aniqlaydi va faqat kerakli joyni qayta quradi.</p>
+<ul class="toc">
+  <li><a href="#arch">1. Tuzilish</a></li>
+  <li><a href="#setup">2. Sozlash</a></li>
+  <li><a href="#resolve">3. Tur aniqlash</a></li>
+  <li><a href="#fallback">4. Fallback</a></li>
+  <li><a href="#rebuild">5. Qayta qurish</a></li>
+  <li><a href="#solid">6. SOLID</a></li>
+</ul>
+
+<!-- ============ 1. ARCHITECTURE ============ -->
+<h2 id="arch"><span class="num">1</span>Tuzilish</h2>
+<p>App faqat bitta obyekt bilan gaplashadi: <code>ResponsiveScreens&lt;T&gt;</code>. U facade — o'z logikasi yo'q,
+har bir chaqiruvni tegishli klassga uzatadi. Ichkaridagi bloklar ochiq, xohlasangiz to'g'ridan-to'g'ri ishlatasiz.</p>
+
+<div class="card">
+<svg viewBox="0 0 900 430" role="img" aria-label="Package tuzilishi">
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker></defs>
+
+  <!-- app -->
+  <rect x="20" y="20" width="200" height="70" rx="10" class="box"/>
+  <text x="120" y="50" text-anchor="middle" font-weight="700">Sizning app</text>
+  <text x="120" y="72" text-anchor="middle" class="small">enum AppScreen + sahifalar</text>
+
+  <!-- facade -->
+  <rect x="300" y="15" width="300" height="80" rx="10" class="box-accent"/>
+  <text x="450" y="45" text-anchor="middle" font-weight="700">ResponsiveScreens&lt;T&gt;</text>
+  <text x="450" y="66" text-anchor="middle" class="small">scope · layout · value · of · dataOf</text>
+  <text x="450" y="83" text-anchor="middle" class="small">builder · forced</text>
+  <path d="M220 55 H296" class="arrow"/>
+
+  <!-- breakpoints -->
+  <rect x="660" y="15" width="220" height="80" rx="10" class="box"/>
+  <text x="770" y="45" text-anchor="middle" font-weight="700">Breakpoints&lt;T&gt;</text>
+  <text x="770" y="66" text-anchor="middle" class="small">tartib · resolve · rankOf</text>
+  <text x="770" y="83" text-anchor="middle" class="small">List&lt;Breakpoint&lt;T&gt;&gt;</text>
+  <path d="M600 55 H656" class="arrow"/>
+  <text x="628" y="47" text-anchor="middle" class="small">has-a</text>
+
+  <!-- second row -->
+  <rect x="40" y="180" width="230" height="80" rx="10" class="box"/>
+  <text x="155" y="210" text-anchor="middle" font-weight="700">ResponsiveScope&lt;T&gt;</text>
+  <text x="155" y="231" text-anchor="middle" class="small">MediaQuery.sizeOf → tur</text>
+  <text x="155" y="248" text-anchor="middle" class="small">InheritedModel ichida</text>
+
+  <rect x="335" y="180" width="230" height="80" rx="10" class="box"/>
+  <text x="450" y="210" text-anchor="middle" font-weight="700">ResponsiveLayout&lt;T&gt;</text>
+  <text x="450" y="231" text-anchor="middle" class="small">faqat tanlangan builder</text>
+  <text x="450" y="248" text-anchor="middle" class="small">ishga tushadi</text>
+
+  <rect x="630" y="180" width="230" height="80" rx="10" class="box"/>
+  <text x="745" y="210" text-anchor="middle" font-weight="700">ResponsiveBuilder&lt;T&gt;</text>
+  <text x="745" y="231" text-anchor="middle" class="small">(context, data) → Widget</text>
+  <text x="745" y="248" text-anchor="middle" class="small">kichik farqlar uchun</text>
+
+  <path d="M380 95 L180 176" class="arrow"/>
+  <path d="M450 95 V176" class="arrow"/>
+  <path d="M520 95 L720 176" class="arrow"/>
+  <text x="250" y="130" class="small">scope() / forced()</text>
+  <text x="458" y="140" class="small">layout()</text>
+  <text x="620" y="130" class="small">builder()</text>
+
+  <!-- third row -->
+  <rect x="40" y="330" width="230" height="80" rx="10" class="box"/>
+  <text x="155" y="360" text-anchor="middle" font-weight="700">ScreenMetrics</text>
+  <text x="155" y="381" text-anchor="middle" class="small">width · height</text>
+  <text x="155" y="398" text-anchor="middle" class="small">shortestSide · longestSide</text>
+  <path d="M155 260 V326" class="arrow"/>
+
+  <rect x="335" y="330" width="230" height="80" rx="10" class="box"/>
+  <text x="450" y="360" text-anchor="middle" font-weight="700">ResponsiveData&lt;T&gt;</text>
+  <text x="450" y="381" text-anchor="middle" class="small">screen · orientation</text>
+  <text x="450" y="398" text-anchor="middle" class="small">select() = fallback yo'li</text>
+  <path d="M270 220 C 300 220, 300 370, 331 370" class="arrow"/>
+  <text x="285" y="300" class="small" text-anchor="middle">beradi</text>
+  <path d="M450 260 V326" class="arrow"/>
+  <path d="M745 260 C 745 370, 600 370, 569 370" class="arrow"/>
+
+  <rect x="630" y="330" width="230" height="80" rx="10" class="box"/>
+  <text x="745" y="360" text-anchor="middle" font-weight="700">Breakpoint&lt;T&gt;</text>
+  <text x="745" y="381" text-anchor="middle" class="small">id · minWidth · minShortestSide</text>
+  <text x="745" y="398" text-anchor="middle" class="small">… · where (predicate)</text>
+  <path d="M770 95 C 880 150, 880 300, 820 326" class="arrow"/>
+</svg>
+<div class="legend"><span><span class="dot" style="background:var(--accent)"></span>siz ishlatadigan yagona obyekt</span>
+<span><span class="dot" style="background:var(--line)"></span>ichki, lekin ochiq bloklar</span></div>
+</div>
+
+<!-- ============ 2. SETUP ============ -->
+<h2 id="setup"><span class="num">2</span>Sozlash — 3 qadam</h2>
+<div class="grid2">
+<div>
+<h3>① Ekran turlari va qoidalar</h3>
+<pre><code><span class="k">enum</span> <span class="t">AppScreen</span> { phone, foldable, tabletMini, tabletBig }
+
+<span class="c">// BIR MARTA, top-level final — build() ichida emas</span>
+<span class="k">final</span> screens = <span class="t">ResponsiveScreens</span>&lt;<span class="t">AppScreen</span>&gt;(<span class="k">const</span> [
+  <span class="t">Breakpoint</span>(AppScreen.phone),  <span class="c">// base</span>
+  <span class="t">Breakpoint</span>(AppScreen.foldable, minWidth: <span class="n">600</span>),
+  <span class="t">Breakpoint</span>(AppScreen.tabletMini,
+      minWidth: <span class="n">600</span>, minShortestSide: <span class="n">700</span>),
+  <span class="t">Breakpoint</span>(AppScreen.tabletBig,
+      minWidth: <span class="n">600</span>, minShortestSide: <span class="n">1000</span>),
+]);</code></pre>
+<h3>② App'ni bir marta o'rash</h3>
+<pre><code><span class="k">void</span> main() =&gt; runApp(
+  screens.scope(child: <span class="k">const</span> <span class="t">App</span>()), <span class="c">// MaterialApp'dan yuqorida</span>
+);</code></pre>
+</div>
+<div>
+<h3>③ Sahifada dizayn chizish</h3>
+<pre><code><span class="c">// Butun body farq qiladi</span>
+screens.layout(
+  builders: {
+    AppScreen.phone:      (_) =&gt; <span class="k">const</span> <span class="t">OneColumn</span>(),
+    AppScreen.tabletMini: (_) =&gt; <span class="k">const</span> <span class="t">TwoColumns</span>(),
+  },
+  landscape: {
+    AppScreen.tabletBig:  (_) =&gt; <span class="k">const</span> <span class="t">ThreeColumns</span>(),
+  },
+)
+
+<span class="c">// Faqat bitta qiymat farq qiladi</span>
+<span class="k">final</span> gap = screens.value(context, {
+  AppScreen.phone: <span class="n">16.0</span>,
+  AppScreen.tabletMini: <span class="n">24.0</span>,
+});
+
+<span class="c">// Turning o'zi</span>
+<span class="k">if</span> (screens.of(context) == AppScreen.tabletBig) ...</code></pre>
+</div>
+</div>
+<div class="note"><b>Nega bir marta?</b> Scope qoidalarni <i>identity</i> bo'yicha solishtiradi. <code>build()</code> ichida
+yaratilsa, har build'da yangi konfiguratsiya bo'ladi va hamma narsa qayta quriladi. Debug rejimda
+<code>of</code> / <code>dataOf</code> / <code>value</code> buni assert bilan ushlaydi.</div>
+
+<!-- ============ 3. RESOLVE ============ -->
+<h2 id="resolve"><span class="num">3</span>Flow: oyna o'lchamidan ekran turiga</h2>
+<p>Qoidalar pastdan yuqoriga tekshiriladi. <b>Oxirgi mos kelgani yutadi</b>; hech biri mos kelmasa — birinchisi (base).
+Qoida ichidagi har bir minimum bajarilishi kerak (AND).</p>
+
+<div class="card">
+<svg viewBox="0 0 900 120" role="img" aria-label="Resolve flow">
+  <rect x="10" y="30" width="150" height="60" rx="10" class="box"/>
+  <text x="85" y="56" text-anchor="middle" font-weight="700">Oyna o'lchami</text>
+  <text x="85" y="76" text-anchor="middle" class="small">MediaQuery.sizeOf</text>
+  <path d="M160 60 H200" class="arrow"/>
+  <rect x="204" y="30" width="150" height="60" rx="10" class="box"/>
+  <text x="279" y="56" text-anchor="middle" font-weight="700">ScreenMetrics</text>
+  <text x="279" y="76" text-anchor="middle" class="small">w · h · short · long</text>
+  <path d="M354 60 H394" class="arrow"/>
+  <rect x="398" y="30" width="190" height="60" rx="10" class="box-accent"/>
+  <text x="493" y="56" text-anchor="middle" font-weight="700">Breakpoints.resolve</text>
+  <text x="493" y="76" text-anchor="middle" class="small">oxiridan boshiga, 1-mos</text>
+  <path d="M588 60 H628" class="arrow"/>
+  <rect x="632" y="30" width="120" height="60" rx="10" class="box"/>
+  <text x="692" y="56" text-anchor="middle" font-weight="700">ekran turi</text>
+  <text x="692" y="76" text-anchor="middle" class="small">+ orientation</text>
+  <path d="M752 60 H792" class="arrow"/>
+  <rect x="796" y="30" width="94" height="60" rx="10" class="box"/>
+  <text x="843" y="56" text-anchor="middle" font-weight="700">Data</text>
+  <text x="843" y="76" text-anchor="middle" class="small">scope'da</text>
+</svg>
+</div>
+
+<p>Pastdagi <a href="#play" style="color:var(--accent)">Playground</a>da istalgan o'lchamni haqiqiy kattalikda sinab ko'ring.</p>
+</main>
+
+<!-- ============ PLAYGROUND (full width) ============ -->
+<section class="playground" id="play">
+<div class="pg-inner">
+  <h2 style="margin-top:0"><span class="num">▶</span>Playground — haqiqiy o'lchamda</h2>
+  <p class="lead" style="font-size:16px">Qurilma <b>1 logical px = 1 CSS px</b> bo'lib chiziladi — telefon telefon kattaligida, planshet
+  planshet kattaligida. Ichidagi app 2-bo'limdagi koddan: <code>screens.layout</code> ustunlar sonini,
+  <code>screens.value</code> bo'shliqni tanlaydi.</p>
+</div>
+<div class="pg-toolbar">
+  <div class="pg-inner">
+    <div class="presets" id="presets"></div>
+    <div class="pg-row">
+      <div class="controls">
+        <label for="w">width</label><input id="w" type="range" min="280" max="1600" value="390"><code id="wv">390</code>
+        <label for="h">height</label><input id="h" type="range" min="280" max="1600" value="844"><code id="hv">844</code>
+      </div>
+      <div class="pg-mode">
+        <button id="modeReal" class="on">Haqiqiy o'lcham</button>
+        <button id="modeFit">Ekranga sig'dirish</button>
+        <span class="pg-scale" id="scaleLabel"></span>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="pg-inner">
+  <div class="pg-canvas" id="viewport"><div class="device" id="device">
+    <div class="app" id="app">
+      <div class="app-bar" id="appBar"><span>Shop</span><span class="chip" id="appChip"></span></div>
+      <div class="app-body" id="appBody"></div>
+    </div>
+  </div></div>
+  <div class="pg-info">
+    <div><h3>Qoidalar — oxiridan boshiga tekshiriladi</h3><div id="rules"></div></div>
+    <div><h3>Natija</h3><div class="result" id="result"></div><div class="picked" id="picked"></div></div>
+  </div>
+</div>
+</section>
+
+<main>
+
+<!-- ============ 4. FALLBACK ============ -->
+<h2 id="fallback"><span class="num">4</span>Flow: fallback — kam builder, kam qiymat</h2>
+<p>Har tur uchun yozish shart emas. Qiymat topilmasa, <b>oldingi e'lon qilingan</b> turga tushiladi, oxiri base.
+Qurilma yon tomonda bo'lsa, har qadamda avval <code>landscape</code>, keyin oddiy qiymat tekshiriladi.
+Shuning uchun base uchun qiymat <b>majburiy</b>.</p>
+
+<div class="card">
+<h3 style="margin-top:0">Misol xaritasi</h3>
+<div class="mapgrid" id="mapValues"></div>
+<div class="mapgrid" id="mapLand"></div>
+<div class="presets" id="fbScreens" style="margin-top:14px"></div>
+<div class="presets" id="fbOrient"></div>
+<ol class="steps" id="fbSteps"></ol>
+<div class="result" id="fbResult"></div>
+</div>
+
+<!-- ============ 5. REBUILD ============ -->
+<h2 id="rebuild"><span class="num">5</span>Flow: nima qayta quriladi</h2>
+<p>Scope <code>InheritedModel</code> — har widget faqat o'zi so'ragan <i>aspect</i>ga obuna bo'ladi:
+<code>screen</code> yoki <code>orientation</code>. Teng snapshot hech kimni xabardor qilmaydi.</p>
+
+<div class="card">
+<div class="events" id="events"></div>
+<div class="tree" id="tree"></div>
+<p class="small" id="evNote" style="color:var(--muted);margin-top:12px"></p>
+</div>
+
+<table class="card" style="padding:0">
+<thead><tr><th>O'zgarish</th><th>Kim qayta quriladi</th></tr></thead>
+<tbody>
+<tr><td>Klaviatura, status bar, insetlar</td><td><span class="pill p-ok">hech kim</span> — scope faqat <code>sizeOf</code> o'qiydi</td></tr>
+<tr><td>Bir tur ichida oyna kattalashdi</td><td><span class="pill p-ok">faqat scope</span> (arzon), dependentlar emas</td></tr>
+<tr><td>Qurilma burildi, tur o'sha</td><td><span class="pill p-warn">orientation'ga bog'liqlar</span> — <code>of</code>, landscape'siz <code>layout</code>/<code>value</code> emas</td></tr>
+<tr><td>Tur o'zgardi</td><td><span class="pill p-no">screen'ga bog'liqlar</span></td></tr>
+</tbody>
+</table>
+
+<!-- ============ 6. SOLID ============ -->
+<h2 id="solid"><span class="num">6</span>Har klass — bitta vazifa</h2>
+<table class="card" style="padding:0">
+<thead><tr><th>Klass</th><th>Vazifasi</th><th>Tamoyil</th></tr></thead>
+<tbody>
+<tr><td><code>Breakpoint</code></td><td>bitta qoida: shu o'lchamga mosmi?</td><td>S — bitta mas'uliyat</td></tr>
+<tr><td><code>Breakpoints</code></td><td>tartib, resolve, rank</td><td>S</td></tr>
+<tr><td><code>where:</code> predicate</td><td>yangi shart — klassni o'zgartirmasdan</td><td>O — kengaytirishga ochiq</td></tr>
+<tr><td><code>ScreenMetrics</code></td><td>qoida ko'radigan yagona ma'lumot</td><td>I — kichik interfeys</td></tr>
+<tr><td><code>ResponsiveScope</code></td><td>turni aniqlash va tarqatish</td><td>S, D — UI qoidaga emas, abstraksiyaga bog'liq</td></tr>
+<tr><td><code>ResponsiveLayout</code> / <code>Builder</code></td><td>UI qurish</td><td>S</td></tr>
+<tr><td><code>ResponsiveScreens</code></td><td>hammasiga bitta kirish nuqtasi</td><td>Facade pattern, composition (has-a)</td></tr>
+</tbody>
+</table>
+
+<footer>responsive_screen_kit 1.0.0 · bu sahifa <code>docs/</code> ichida, pub.dev arxiviga kirmaydi.</footer>
+</main>
+
+<script>
+const SCREENS = ["phone", "foldable", "tabletMini", "tabletBig"];
+const COLORS = ["var(--c0)", "var(--c1)", "var(--c2)", "var(--c3)"];
+const RULES = [
+  { id: "phone", minWidth: 0, minShortestSide: 0, label: "Breakpoint(phone)", sub: "minimum yo'q — base" },
+  { id: "foldable", minWidth: 600, minShortestSide: 0, label: "Breakpoint(foldable, minWidth: 600)", sub: "" },
+  { id: "tabletMini", minWidth: 600, minShortestSide: 700, label: "Breakpoint(tabletMini, minWidth: 600, minShortestSide: 700)", sub: "" },
+  { id: "tabletBig", minWidth: 600, minShortestSide: 1000, label: "Breakpoint(tabletBig, minWidth: 600, minShortestSide: 1000)", sub: "" },
+];
+const PRESETS = [
+  ["iPhone", 390, 844], ["iPhone ↻", 844, 390], ["Fold ochiq", 669, 951], ["iPad", 820, 1180],
+  ["iPad ↻", 1180, 820], ["iPad Pro", 1024, 1366], ["iPad Pro ↻", 1366, 1024], ["Split-view", 410, 1180],
+];
+
+// ---------- resolve playground ----------
+const w = document.getElementById("w"), h = document.getElementById("h");
+const presetsEl = document.getElementById("presets");
+PRESETS.forEach(([name, pw, ph]) => {
+  const b = document.createElement("button");
+  b.textContent = `${name} ${pw}×${ph}`;
+  b.onclick = () => { w.value = pw; h.value = ph; renderResolve(); };
+  presetsEl.appendChild(b);
+});
+
+function resolve(width, height) {
+  const shortest = Math.min(width, height);
+  const checks = RULES.map(r => {
+    const okW = width >= r.minWidth, okS = shortest >= r.minShortestSide;
+    return { r, okW, okS, match: okW && okS };
+  });
+  let win = 0;
+  for (let i = checks.length - 1; i > 0; i--) if (checks[i].match) { win = i; break; }
+  return { checks, win, shortest };
+}
+
+// Same maps as the code in section 2.
+const LAYOUT_BUILDERS = { phone: 1, tabletMini: 2 };          // OneColumn, TwoColumns
+const LAYOUT_LANDSCAPE = { tabletBig: 3 };                     // ThreeColumns
+const LAYOUT_NAMES = { 1: "OneColumn", 2: "TwoColumns", 3: "ThreeColumns" };
+const GAP_VALUES = { phone: 16, tabletMini: 24 };
+const CARD_COLORS = ["#f6c48f", "#9fc5f8", "#b4e3c4", "#d7b8f3", "#f7a8a8", "#a8e6e2", "#f3e19c", "#c9cfd8", "#f8c6de"];
+const PRODUCTS = ["Kofe", "Choy", "Pishiriq", "Sharbat", "Salat", "Sendvich", "Desert", "Suv", "Kruassan"];
+
+// ResponsiveData.select: walk down the ranks, landscape first when sideways.
+function select(winRank, landscapeOn, values, landscape) {
+  for (let rank = winRank; rank >= 0; rank--) {
+    const id = SCREENS[rank];
+    if (landscapeOn && id in landscape) return { v: landscape[id], from: id, land: true };
+    if (id in values) return { v: values[id], from: id, land: false };
+  }
+  return null;
+}
+
+const appBody = document.getElementById("appBody");
+appBody.innerHTML = PRODUCTS.map((p, i) => `<div class="app-card"><div class="img" style="background:${CARD_COLORS[i]}"></div>
+  <div class="txt"><div class="t1">${p}</div><div class="t2">${(i + 3) * 7} 000 so'm</div>
+  <div class="bar"></div><div class="bar short"></div></div></div>`).join("");
+
+let fitMode = false;
+
+function renderApp(width, height, win) {
+  const sideways = width > height;
+  const cols = select(win, sideways, LAYOUT_BUILDERS, LAYOUT_LANDSCAPE);
+  const gap = select(win, false, GAP_VALUES, {});
+  const vp = document.getElementById("viewport");
+  // Real size: 1 logical px = 1 CSS px. Shrink only when it cannot fit the
+  // canvas width ("real"), or the screen height too ("fit").
+  const frame = 20, pad = 48;
+  const byWidth = (vp.clientWidth - pad - frame) / width;
+  const byHeight = (window.innerHeight - 220 - frame) / height;
+  const scale = Math.min(1, byWidth, fitMode ? byHeight : Infinity);
+  const dev = document.getElementById("device");
+  dev.style.width = width * scale + "px";
+  dev.style.height = height * scale + "px";
+  dev.style.borderWidth = Math.max(4, 10 * scale) + "px";
+  dev.style.borderRadius = Math.max(10, 28 * scale) + "px";
+  document.getElementById("scaleLabel").textContent = scale >= 1
+    ? "1:1 — haqiqiy o'lcham"
+    : `${Math.round(scale * 100)}% — ${byWidth < 1 && !(fitMode && byHeight < byWidth) ? "kenglik sig'madi" : "ekranga sig'dirildi"}`;
+  const app = document.getElementById("app");
+  app.style.width = width + "px";
+  app.style.height = height + "px";
+  app.style.transform = `scale(${scale})`;
+  document.getElementById("appBar").style.background = COLORS[win];
+  document.getElementById("appChip").textContent = `${SCREENS[win]} · ${LAYOUT_NAMES[cols.v]}`;
+  appBody.style.gridTemplateColumns = `repeat(${cols.v}, 1fr)`;
+  appBody.style.padding = gap.v + "px";
+  appBody.style.gap = gap.v + "px";
+  document.getElementById("picked").innerHTML =
+    `<span>screens.layout</span><span><b>${LAYOUT_NAMES[cols.v]}</b> ← ${cols.land ? "landscape" : "builders"}[${cols.from}]` +
+    `${cols.from !== SCREENS[win] ? ` <i>(fallback: ${SCREENS[win]} uchun yozilmagan)</i>` : ""}</span>` +
+    `<span>screens.value</span><span><b>${gap.v}.0</b> ← [${gap.from}]` +
+    `${gap.from !== SCREENS[win] ? ` <i>(fallback)</i>` : ""}</span>`;
+}
+
+function renderResolve() {
+  const width = +w.value, height = +h.value;
+  document.getElementById("wv").textContent = width;
+  document.getElementById("hv").textContent = height;
+  const { checks, win, shortest } = resolve(width, height);
+  renderApp(width, height, win);
+  [...presetsEl.children].forEach((b, i) => b.classList.toggle("on", PRESETS[i][1] === width && PRESETS[i][2] === height));
+
+  const rulesEl = document.getElementById("rules");
+  rulesEl.innerHTML = "";
+  checks.slice().reverse().forEach((c, ri) => {
+    const i = checks.length - 1 - ri;
+    const d = document.createElement("div");
+    d.className = "rule" + (c.match ? " match" : "") + (i === win ? " win" : "");
+    const parts = [];
+    if (c.r.minWidth) parts.push(`width ${width} ≥ ${c.r.minWidth} ${c.okW ? "✓" : "✗"}`);
+    if (c.r.minShortestSide) parts.push(`shortestSide ${shortest} ≥ ${c.r.minShortestSide} ${c.okS ? "✓" : "✗"}`);
+    const detail = parts.length ? parts.join(" · ") : c.r.sub;
+    const why = i === win ? " — <b>YUTDI</b>" : (c.match && i > win ? "" : (c.match ? " — mos, lekin yuqoridagisi yutgan" : ""));
+    d.innerHTML = `<span class="chk" style="color:${c.match ? "var(--ok)" : "var(--no)"}">${c.match ? "✓" : "✗"}</span>
+      <div><code style="background:none;padding:0;color:${COLORS[i]}">${c.r.label}</code>${why}<small>${detail}</small></div>`;
+    rulesEl.appendChild(d);
+  });
+  const orient = width > height ? "landscape" : "portrait";
+  document.getElementById("result").innerHTML =
+    `Natija: <b style="color:${COLORS[win]}">AppScreen.${SCREENS[win]}</b>, ${orient}` +
+    (win === 0 && checks.slice(1).every(c => !c.match) ? " — hech biri mos kelmadi, base olindi" : "");
+}
+w.oninput = h.oninput = renderResolve;
+window.addEventListener("resize", renderResolve);
+const modeReal = document.getElementById("modeReal"), modeFit = document.getElementById("modeFit");
+function setMode(fit) {
+  fitMode = fit;
+  modeReal.classList.toggle("on", !fit);
+  modeFit.classList.toggle("on", fit);
+  renderResolve();
+}
+modeReal.onclick = () => setMode(false);
+modeFit.onclick = () => setMode(true);
+renderResolve();
+
+// ---------- fallback ----------
+const VALUES = { phone: "OneColumn", tabletMini: "TwoColumns" };
+const LAND = { tabletBig: "ThreeColumns" };
+let fbScreen = 3, fbLand = true;
+
+function cell(map, id, title) {
+  const has = id in map;
+  return `<div class="mapcell ${has ? "has" : ""}" style="${has ? `border-color:${COLORS[SCREENS.indexOf(id)]}` : ""}">
+    <b>${title}${id}</b>${has ? map[id] : "—"}</div>`;
+}
+function renderFallback() {
+  document.getElementById("mapValues").innerHTML = SCREENS.map(s => cell(VALUES, s, "builders · ")).join("");
+  document.getElementById("mapLand").innerHTML = SCREENS.map(s => cell(LAND, s, "landscape · ")).join("");
+  const steps = []; let result = null;
+  for (let rank = fbScreen; rank >= 0 && result === null; rank--) {
+    const id = SCREENS[rank];
+    if (fbLand) {
+      if (id in LAND) { steps.push([`landscape[${id}] → <b>${LAND[id]}</b>`, "hit"]); result = LAND[id]; break; }
+      steps.push([`landscape[${id}] yo'q`, "skip"]);
+    }
+    if (id in VALUES) { steps.push([`builders[${id}] → <b>${VALUES[id]}</b>`, "hit"]); result = VALUES[id]; break; }
+    steps.push([`builders[${id}] yo'q → oldingi turga`, "skip"]);
+  }
+  document.getElementById("fbSteps").innerHTML = steps.map(([t, c]) => `<li class="${c}">${t}</li>`).join("");
+  document.getElementById("fbResult").innerHTML =
+    `<b style="color:${COLORS[fbScreen]}">${SCREENS[fbScreen]}</b> ${fbLand ? "landscape" : "portrait"} → chiziladi: <b>${result}</b>`;
+  [...document.getElementById("fbScreens").children].forEach((b, i) => b.classList.toggle("on", i === fbScreen));
+  [...document.getElementById("fbOrient").children].forEach((b, i) => b.classList.toggle("on", (i === 1) === fbLand));
+}
+SCREENS.forEach((s, i) => {
+  const b = document.createElement("button"); b.textContent = s;
+  b.onclick = () => { fbScreen = i; renderFallback(); };
+  document.getElementById("fbScreens").appendChild(b);
+});
+["portrait", "landscape"].forEach((o, i) => {
+  const b = document.createElement("button"); b.textContent = o;
+  b.onclick = () => { fbLand = i === 1; renderFallback(); };
+  document.getElementById("fbOrient").appendChild(b);
+});
+renderFallback();
+
+// ---------- rebuilds ----------
+const NODES = [
+  ["ResponsiveScope (screens.scope)", "scope", 0],
+  ["MaterialApp → HomePage", "child (o'sha instance)", 1],
+  ["screens.of(context)", "aspect: screen", 2],
+  ["screens.layout(builders) — landscape'siz", "aspect: screen", 2],
+  ["screens.layout(…, landscape: {...})", "aspect: hammasi", 2],
+  ["screens.builder(aspect: orientation)", "aspect: orientation", 2],
+  ["screens.dataOf(context)", "aspect: hammasi", 2],
+];
+const EVENTS = [
+  ["⌨️ Klaviatura ochildi", [], "Scope faqat MediaQuery.sizeOf o'qiydi — insetlar unga yetib bormaydi."],
+  ["↔️ iPad 820 → 900 (tur o'sha)", [0], "Scope qayta hisoblaydi, lekin snapshot teng — hech bir dependent xabardor bo'lmaydi."],
+  ["🔄 iPad burildi (tur o'sha)", [0, 4, 5, 6], "Faqat orientation'ga obuna bo'lganlar. screen aspect'dagilar tegilmaydi."],
+  ["📱→📲 iPad → iPad Pro (tur o'zgardi)", [0, 2, 3, 4, 6], "screen aspect'ga obunalar qayta quriladi; faqat orientation kuzatuvchi builder emas."],
+];
+function renderRebuild(ev) {
+  const [, hits, note] = EVENTS[ev];
+  document.getElementById("tree").innerHTML = NODES.map(([n, tag, ind], i) =>
+    `<div class="node indent${ind} ${hits.includes(i) ? "rb" : ""}"><span>${n}</span>
+     <span class="tag">${hits.includes(i) ? "qayta quriladi" : tag}</span></div>`).join("");
+  document.getElementById("evNote").textContent = note;
+  [...document.getElementById("events").children].forEach((b, i) => b.classList.toggle("on", i === ev));
+}
+EVENTS.forEach(([name], i) => {
+  const b = document.createElement("button"); b.textContent = name;
+  b.onclick = () => renderRebuild(i);
+  document.getElementById("events").appendChild(b);
+});
+renderRebuild(0);
+</script>
+</body>
+</html>

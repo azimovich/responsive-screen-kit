@@ -1,0 +1,9 @@
+CLAUDE.md
+.claude/
+docs/
+.idea/
+*.iml
+build/
+.dart_tool/
+pubspec.lock
+.metadata
