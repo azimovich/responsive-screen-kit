@@ -5,15 +5,23 @@ import "package:flutter/widgets.dart";
 /// insets never cause a new resolution.
 @immutable
 class ScreenMetrics {
+  /// Creates the metrics of a window of [size].
   const ScreenMetrics(this.size);
 
   /// The window, in logical pixels — not the device: a split-view window
   /// counts as its own size.
   final Size size;
 
+  /// The window width, in logical pixels.
   double get width => size.width;
+
+  /// The window height, in logical pixels.
   double get height => size.height;
+
+  /// The shorter of [width] and [height].
   double get shortestSide => size.shortestSide;
+
+  /// The longer of [width] and [height].
   double get longestSide => size.longestSide;
 
   /// Derived from the size, so no extra `MediaQuery` dependency is needed.

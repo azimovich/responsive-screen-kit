@@ -15,6 +15,10 @@ import "screen_metrics.dart";
 /// compares it by identity.
 @immutable
 class Breakpoints<T extends Object> {
+  /// Creates the screen classes from [breakpoints], in fallback order.
+  ///
+  /// [breakpoints] must not be empty and must name each class once. The list
+  /// is copied, so changing it later does not change these breakpoints.
   Breakpoints(List<Breakpoint<T>> breakpoints)
       : assert(breakpoints.isNotEmpty, "at least the base screen class"),
         assert(

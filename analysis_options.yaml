@@ -8,3 +8,5 @@ linter:
     - prefer_double_quotes
     - prefer_const_constructors
     - sort_child_properties_last
+    - public_member_api_docs
+    - comment_references

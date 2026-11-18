@@ -28,6 +28,9 @@ import "responsive_scope.dart";
 /// public for anyone who needs them directly.
 @immutable
 class ResponsiveScreens<T extends Object> {
+  /// Creates the app's screen classes from [breakpoints], in fallback order.
+  ///
+  /// Create it once, as a top-level `final`.
   ResponsiveScreens(List<Breakpoint<T>> breakpoints)
       : breakpoints = Breakpoints<T>(breakpoints);
 

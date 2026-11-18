@@ -7,22 +7,30 @@ import "breakpoints.dart";
 /// rebuilds nothing below the scope.
 @immutable
 class ResponsiveData<T extends Object> {
+  /// Creates a snapshot of [screen] and [orientation] under [breakpoints].
   const ResponsiveData({
     required this.screen,
     required this.orientation,
     required this.breakpoints,
   });
 
+  /// The resolved screen class.
   final T screen;
+
+  /// The window's orientation, derived from its size.
   final Orientation orientation;
+
+  /// The rules [screen] was resolved with.
   final Breakpoints<T> breakpoints;
 
+  /// Whether the window is wider than it is tall.
   bool get isLandscape => orientation == Orientation.landscape;
 
   /// `isAtLeast(AppScreen.tablet)` — this class or a larger one.
   bool isAtLeast(T other) =>
       breakpoints.rankOf(screen) >= breakpoints.rankOf(other);
 
+  /// Whether [screen] comes before [other] in the declared order.
   bool isBelow(T other) => !isAtLeast(other);
 
   /// The value for this class, walking the fallback order. Held sideways, each

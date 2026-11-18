@@ -6,7 +6,13 @@ import "screen_metrics.dart";
 
 /// What a dependent listens to. A widget that asks only for [screen] does not
 /// rebuild when the device turns within the same class.
-enum ResponsiveAspect { screen, orientation }
+enum ResponsiveAspect {
+  /// The screen class.
+  screen,
+
+  /// The window's orientation.
+  orientation,
+}
 
 /// Wraps the app once and resolves the screen class for everything below it.
 ///
@@ -18,12 +24,14 @@ enum ResponsiveAspect { screen, orientation }
 /// same instance between its builds, its own rebuild stops at the
 /// `InheritedModel`, which notifies only dependents whose aspect changed.
 class ResponsiveScope<T extends Object> extends StatelessWidget {
+  /// Creates a scope that resolves the screen class from the window size.
   const ResponsiveScope(
       {super.key, required this.breakpoints, required this.child})
       : _forcedScreen = null,
         _forcedOrientation = null;
 
-  /// A fixed screen class, whatever the window: previews, golden and widget tests.
+  /// Creates a scope with a fixed [screen] and [orientation], whatever the
+  /// window: previews, golden and widget tests.
   const ResponsiveScope.forced({
     super.key,
     required this.breakpoints,
@@ -33,8 +41,12 @@ class ResponsiveScope<T extends Object> extends StatelessWidget {
   })  : _forcedScreen = screen,
         _forcedOrientation = orientation;
 
+  /// The rules the screen class is resolved with.
   final Breakpoints<T> breakpoints;
+
+  /// The widget below this scope, usually the `MaterialApp`.
   final Widget child;
+
   final T? _forcedScreen;
   final Orientation? _forcedOrientation;
 
@@ -55,6 +67,9 @@ class ResponsiveScope<T extends Object> extends StatelessWidget {
     return data;
   }
 
+  /// The nearest scope of type [T], or `null` when there is none.
+  ///
+  /// Pass an [aspect] to depend on it alone.
   static ResponsiveData<T>? maybeOf<T extends Object>(
     BuildContext context, {
     ResponsiveAspect? aspect,

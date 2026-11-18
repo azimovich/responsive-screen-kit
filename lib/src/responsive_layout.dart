@@ -18,10 +18,14 @@ import "responsive_scope.dart";
 /// different keys when they must not share state; keep state that must
 /// survive any switch above this widget, or in a bloc.
 class ResponsiveLayout<T extends Object> extends StatelessWidget {
+  /// Creates a layout with one body builder per screen class.
   const ResponsiveLayout(
       {super.key, required this.builders, this.landscape = const {}});
 
+  /// The body for each screen class; must include the base class.
   final Map<T, WidgetBuilder> builders;
+
+  /// The body for a screen class held sideways, tried before [builders].
   final Map<T, WidgetBuilder> landscape;
 
   @override
@@ -44,8 +48,10 @@ class ResponsiveLayout<T extends Object> extends StatelessWidget {
 /// The resolved data at hand, for a body that differs only in a detail.
 /// Prefer [ResponsiveLayout] when whole bodies differ.
 class ResponsiveBuilder<T extends Object> extends StatelessWidget {
+  /// Creates a widget that hands the resolved data to [builder].
   const ResponsiveBuilder({super.key, required this.builder, this.aspect});
 
+  /// Builds the widget from the resolved data.
   final Widget Function(BuildContext context, ResponsiveData<T> data) builder;
 
   /// Rebuild only on this aspect; `null` — on any.

@@ -16,6 +16,9 @@ typedef ScreenPredicate = bool Function(ScreenMetrics metrics);
 /// ```
 @immutable
 class Breakpoint<T extends Object> {
+  /// Creates the rule for the screen class [id].
+  ///
+  /// Every minimum defaults to `0` (no limit) and must not be negative.
   const Breakpoint(
     this.id, {
     this.minWidth = 0,
@@ -31,16 +34,24 @@ class Breakpoint<T extends Object> {
   /// The app's own screen class, usually an enum value.
   final T id;
 
+  /// The smallest window width, in logical pixels, this class applies to.
   final double minWidth;
+
+  /// The smallest window height, in logical pixels, this class applies to.
   final double minHeight;
 
+  /// The smallest value of the window's shorter side.
+  ///
   /// Does not change when the device turns — use it for "what device is this".
   final double minShortestSide;
+
+  /// The smallest value of the window's longer side.
   final double minLongestSide;
 
   /// Anything the minimums cannot say (an aspect ratio, say).
   final ScreenPredicate? where;
 
+  /// Whether [metrics] meets every minimum and, when set, [where].
   bool matches(ScreenMetrics metrics) =>
       metrics.width >= minWidth &&
       metrics.height >= minHeight &&
