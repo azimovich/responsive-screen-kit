@@ -80,5 +80,53 @@ void main() {
       list.add(const Breakpoint(Screen.tabletBig, minWidth: 1));
       expect(set.screens, [Screen.phone]);
     });
+
+    test("the screens it hands out cannot change it", () {
+      final copy = breakpoints.screens..clear();
+      expect(copy, isEmpty);
+      expect(breakpoints.screens, Screen.values);
+    });
+  });
+
+  group("edge cases", () {
+    test("an empty window is the base", () {
+      expect(breakpoints.resolve(const ScreenMetrics(Size.zero)), Screen.phone);
+    });
+
+    test("equal rules: the one declared later wins", () {
+      final tie = Breakpoints<String>(const [
+        Breakpoint("base"),
+        Breakpoint("first", minWidth: 600),
+        Breakpoint("second", minWidth: 600),
+      ]);
+      expect(tie.resolve(const ScreenMetrics(Size(800, 800))), "second");
+    });
+
+    test("an order not by size works with exclusive predicates", () {
+      // The foldable comes after the tablet so it borrows the tablet's
+      // values; its predicate keeps it from matching a plain tablet.
+      final custom = Breakpoints<String>(const [
+        Breakpoint("phone"),
+        Breakpoint("tablet", minWidth: 600, where: _notSquarish),
+        Breakpoint("foldable", minWidth: 600, where: _squarish),
+      ]);
+      expect(custom.resolve(const ScreenMetrics(Size(820, 1180))), "tablet");
+      expect(custom.resolve(const ScreenMetrics(Size(700, 760))), "foldable");
+      expect(custom.rankOf("foldable"), greaterThan(custom.rankOf("tablet")));
+    });
+
+    test("screenAt and rankOf are inverse", () {
+      for (final s in Screen.values) {
+        expect(breakpoints.screenAt(breakpoints.rankOf(s)), s);
+      }
+    });
+
+    test("toString lists the classes in order", () {
+      expect(breakpoints.toString(),
+          "Breakpoints<Screen>(Screen.phone < Screen.foldable < Screen.tabletMini < Screen.tabletBig)");
+    });
   });
 }
+
+bool _squarish(ScreenMetrics m) => m.longestSide / m.shortestSide < 1.2;
+bool _notSquarish(ScreenMetrics m) => !_squarish(m);

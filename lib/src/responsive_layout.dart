@@ -12,8 +12,11 @@ import "responsive_scope.dart";
 ///
 /// Works as a box or as a sliver: it returns whatever the builder returns.
 ///
-/// Switching the body replaces its subtree (state below it is new); keep
-/// state that must survive a resize above it, or in a bloc.
+/// When the class changes, Flutter compares the new body with the old one by
+/// widget type and key, as anywhere else: a body of another type (or key)
+/// starts with fresh state, one of the same type keeps it. Give the bodies
+/// different keys when they must not share state; keep state that must
+/// survive any switch above this widget, or in a bloc.
 class ResponsiveLayout<T extends Object> extends StatelessWidget {
   const ResponsiveLayout(
       {super.key, required this.builders, this.landscape = const {}});

@@ -27,4 +27,15 @@ void main() {
     expect(const ScreenMetrics(Size(1, 2)),
         isNot(const ScreenMetrics(Size(2, 1))));
   });
+
+  test("an empty size is portrait with zero sides", () {
+    const metrics = ScreenMetrics(Size.zero);
+    expect(metrics.orientation, Orientation.portrait);
+    expect(metrics.shortestSide, 0);
+  });
+
+  test("toString shows the size", () {
+    expect(const ScreenMetrics(Size(820, 1180)).toString(),
+        "ScreenMetrics(820.0 × 1180.0)");
+  });
 }

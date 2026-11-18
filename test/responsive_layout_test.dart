@@ -137,9 +137,112 @@ void main() {
       );
       expect(tester.takeException(), isAssertionError);
     });
+
+    group("state when the class changes", () {
+      Future<void> tapAndSwitch(
+        WidgetTester tester,
+        Map<Screen, WidgetBuilder> builders,
+      ) async {
+        useSize(tester, phone);
+        await tester
+            .pumpWidget(scoped(ResponsiveLayout<Screen>(builders: builders)));
+        await tester.tap(find.byType(_Counter));
+        await tester.pump();
+        expect(find.text("1"), findsOneWidget);
+        await resize(tester, iPad);
+      }
+
+      testWidgets("a body of another widget type starts fresh", (tester) async {
+        await tapAndSwitch(tester, {
+          Screen.phone: (_) => const _Counter(),
+          Screen.tabletMini: (_) => const Center(child: _Counter()),
+        });
+        expect(find.text("0"), findsOneWidget);
+      });
+
+      testWidgets("a body of the same widget type keeps its state",
+          (tester) async {
+        // Flutter matches by type and key, not by builder: give the bodies
+        // different keys when they must not share state.
+        await tapAndSwitch(tester, {
+          Screen.phone: (_) => const _Counter(),
+          Screen.tabletMini: (_) => const _Counter(),
+        });
+        expect(find.text("1"), findsOneWidget);
+      });
+
+      testWidgets("different keys make the same type start fresh",
+          (tester) async {
+        await tapAndSwitch(tester, {
+          Screen.phone: (_) => const _Counter(key: ValueKey("phone")),
+          Screen.tabletMini: (_) => const _Counter(key: ValueKey("tablet")),
+        });
+        expect(find.text("0"), findsOneWidget);
+      });
+    });
+
+    testWidgets("with landscape bodies, turning switches the body",
+        (tester) async {
+      useSize(tester, iPad);
+      var builds = 0;
+      await tester.pumpWidget(
+        scoped(
+          ResponsiveLayout<Screen>(
+            builders: {
+              Screen.phone: (_) {
+                builds++;
+                return const SizedBox();
+              },
+            },
+            landscape: {Screen.phone: (_) => const Text("sideways")},
+          ),
+        ),
+      );
+      await resize(tester, iPadSideways);
+      expect(find.text("sideways"), findsOneWidget);
+      expect(builds, 1, reason: "the upright builder did not run again");
+    });
   });
 
   group("ResponsiveBuilder", () {
+    testWidgets("without an aspect rebuilds on turning too", (tester) async {
+      useSize(tester, iPad);
+      var builds = 0;
+      await tester.pumpWidget(
+        scoped(
+          ResponsiveBuilder<Screen>(
+            builder: (context, data) {
+              builds++;
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+      await resize(tester, iPadSideways);
+      expect(builds, 2);
+    });
+
+    testWidgets("an orientation aspect ignores a class change upright",
+        (tester) async {
+      useSize(tester, iPad);
+      var builds = 0;
+      await tester.pumpWidget(
+        scoped(
+          ResponsiveBuilder<Screen>(
+            aspect: ResponsiveAspect.orientation,
+            builder: (context, data) {
+              builds++;
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+      await resize(tester, iPadPro);
+      expect(builds, 1, reason: "tabletMini → tabletBig, still portrait");
+      await resize(tester, iPadProSideways);
+      expect(builds, 2);
+    });
+
     testWidgets("hands over the data and honours its aspect", (tester) async {
       useSize(tester, iPad);
       var builds = 0;
@@ -168,7 +271,7 @@ void main() {
 }
 
 class _Counter extends StatefulWidget {
-  const _Counter();
+  const _Counter({super.key});
 
   @override
   State<_Counter> createState() => _CounterState();

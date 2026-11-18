@@ -160,6 +160,46 @@ void main() {
       await resize(tester, iPad);
       expect(data.screen, Screen.tabletBig);
     });
+
+    testWidgets("is portrait unless told otherwise", (tester) async {
+      useSize(tester, iPadSideways);
+      late ResponsiveData<Screen> data;
+      await tester.pumpWidget(
+        ResponsiveScope<Screen>.forced(
+          breakpoints: breakpoints,
+          screen: Screen.phone,
+          child: Builder(builder: (context) {
+            data = ResponsiveScope.of<Screen>(context);
+            return const SizedBox();
+          }),
+        ),
+      );
+      expect(data.orientation, Orientation.portrait);
+    });
+
+    testWidgets("a new forced class notifies its dependents", (tester) async {
+      final seen = <Object?>[];
+      Widget tree(Screen screen) => ResponsiveScope<Screen>.forced(
+            breakpoints: breakpoints,
+            screen: screen,
+            child: Probe(read: screens.of, onBuild: seen.add),
+          );
+      await tester.pumpWidget(tree(Screen.phone));
+      await tester.pumpWidget(tree(Screen.tabletBig));
+      expect(seen, [Screen.phone, Screen.tabletBig]);
+    });
+
+    testWidgets("switching from forced to the window resolves again",
+        (tester) async {
+      useSize(tester, iPad);
+      final seen = <Object?>[];
+      final probe = Probe(read: screens.of, onBuild: seen.add);
+      await tester.pumpWidget(ResponsiveScope<Screen>.forced(
+          breakpoints: breakpoints, screen: Screen.phone, child: probe));
+      await tester.pumpWidget(
+          ResponsiveScope<Screen>(breakpoints: breakpoints, child: probe));
+      expect(seen, [Screen.phone, Screen.tabletMini]);
+    });
   });
 
   group("rebuilds", () {

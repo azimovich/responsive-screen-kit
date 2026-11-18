@@ -80,4 +80,35 @@ void main() {
       expect(_data(Screen.phone), isNot(other));
     });
   });
+
+  group("edge cases", () {
+    test("select is null when only larger classes have a value", () {
+      expect(_data(Screen.foldable).select({Screen.tabletBig: 1}), isNull);
+    });
+
+    test(
+        "held sideways with only landscape values for larger classes, "
+        "the upright value below is used", () {
+      final data = _data(Screen.foldable, Orientation.landscape);
+      expect(
+        data.select({Screen.phone: "phone"},
+            landscape: {Screen.tabletMini: "wide"}),
+        "phone",
+      );
+    });
+
+    test("isAtLeast with a class not in the breakpoints is an error", () {
+      final small = ResponsiveData(
+        screen: "only",
+        orientation: Orientation.portrait,
+        breakpoints: Breakpoints<String>(const [Breakpoint("only")]),
+      );
+      expect(() => small.isAtLeast("other"), throwsArgumentError);
+    });
+
+    test("toString names the class and orientation", () {
+      expect(_data(Screen.tabletMini, Orientation.landscape).toString(),
+          "ResponsiveData(Screen.tabletMini, landscape)");
+    });
+  });
 }

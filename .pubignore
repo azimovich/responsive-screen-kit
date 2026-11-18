@@ -1,9 +1,15 @@
-CLAUDE.md
-.claude/
-docs/
-.idea/
-*.iml
-build/
+# Local and build files — never in the published archive.
 .dart_tool/
+build/
+coverage/
 pubspec.lock
 .metadata
+.idea/
+*.iml
+
+# Visual guide lives on GitHub only.
+docs/
+
+# Claude Code local files
+CLAUDE.md
+.claude/

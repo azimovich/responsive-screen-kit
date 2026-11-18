@@ -55,5 +55,23 @@ void main() {
 
   test("negative minimums are refused", () {
     expect(() => Breakpoint("x", minWidth: -1), throwsAssertionError);
+    expect(() => Breakpoint("x", minHeight: -1), throwsAssertionError);
+    expect(() => Breakpoint("x", minShortestSide: -1), throwsAssertionError);
+    expect(() => Breakpoint("x", minLongestSide: -1), throwsAssertionError);
+  });
+
+  test("a non-const predicate works too", () {
+    final square = Breakpoint("square", where: (m) => m.width == m.height);
+    expect(square.matches(const ScreenMetrics(Size(600, 600))), isTrue);
+    expect(square.matches(const ScreenMetrics(Size(600, 601))), isFalse);
+  });
+
+  test("toString names the class and its minimums", () {
+    expect(
+      const Breakpoint("tablet", minWidth: 600, minShortestSide: 700)
+          .toString(),
+      allOf(contains("tablet"), contains("minWidth: 600"),
+          contains("minShortestSide: 700")),
+    );
   });
 }
